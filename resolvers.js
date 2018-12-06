@@ -8,6 +8,25 @@ module.exports = {
         {title: 'le bon titre', author: 'Paul', content: 'Le bon contenu'},
       ];
     },
+    todo: async (_, {email}, {dataSources}) => {
+      return [
+        {
+          id: 'fezfezf-zfzefzefez-fzf',
+          checked: false,
+          name: 'Laver le chamal',
+        },
+        {
+          id: 'ffzfezf-zfzefzefez-fzf',
+          checked: true,
+          name: 'Acheter une poule',
+        },
+        {
+          id: 'feoiezf-zfzefzefez-fzf',
+          checked: false,
+          name: 'Vendre le chat',
+        },
+      ];
+    },
   },
   Mutation: {
     login: async (_, {email}, {dataSources}) => {

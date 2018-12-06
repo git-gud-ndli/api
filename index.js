@@ -8,8 +8,16 @@ const typeDefs = gql`
     content: String
   }
 
+  type Todo {
+    id: String
+    checked: Boolean
+    name: String
+  }
+
   type Query {
     news: [News]
+
+    todo: [Todo]
   }
 
   type Mutation {
