@@ -23,8 +23,8 @@ module.exports = {
     connection: {
       database: 'postgres',
       user: 'postgres',
-      password: 'example',
-      host: 'db',
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST,
     },
     pool: {
       min: 2,
@@ -40,8 +40,8 @@ module.exports = {
     connection: {
       database: 'postgres',
       user: 'postgres',
-      password: 'example',
-      host: 'db',
+      password: process.env.DB_PASSWORD,
+      host: process.env.DB_HOST,
     },
     pool: {
       min: 2,
