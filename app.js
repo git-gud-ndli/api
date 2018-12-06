@@ -50,8 +50,7 @@ const server = new ApolloServer({
       const s = header.split(" ");
       if (s.length == 2 && s[0] == "Bearer") {
         const token = s[1];
-        // TODO: save the secret somewhere
-        if (!jwt.verify(token, "La bonne phrase"))
+        if (!jwt.verify(token, process.env.JWT_SECRET))
           throw new Error("Invalid token");
 
         const content = jwt.decode(token);

@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
-const secret = "La bonne phrase";
 const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
 const models = require("./models");
+
+const secret = process.env.JWT_SECRET;
 
 const data = {
   me: {

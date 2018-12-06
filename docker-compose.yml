@@ -18,6 +18,13 @@ services:
 
   api:
     build: ./pm2
+    environment:
+      DB_HOST: db
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: example
+      DB_PORT: 5432
+      JWT_SECRET: chamal
     volumes:
       - .:/app
     ports:
