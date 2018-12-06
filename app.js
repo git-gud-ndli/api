@@ -1,5 +1,5 @@
-const { ApolloServer, gql } = require("apollo-server");
-const resolvers = require("./resolvers");
+const {ApolloServer, gql} = require('apollo-server');
+const resolvers = require('./resolvers');
 
 const typeDefs = gql`
   type User {
@@ -34,11 +34,13 @@ const typeDefs = gql`
     register(email: String!, password: String!): String
 
     todoCheck(uuid: String, value: Boolean): Boolean
+
+    updateCoords(lat: String, long: String): Boolean
   }
 `;
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({typeDefs, resolvers});
 
-server.listen().then(({ url }) => {
+server.listen().then(({url}) => {
   console.log(`🚀  Server ready at ${url}`);
 });

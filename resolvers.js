@@ -1,13 +1,13 @@
-const jwt = require("jsonwebtoken");
-const uuid = require("uuid/v1");
-const secret = "La bonne phrase";
+const jwt = require('jsonwebtoken');
+const uuid = require('uuid/v1');
+const secret = 'La bonne phrase';
 
-var pg = require("knex")(require("./knexfile").development);
+var pg = require('knex')(require('./knexfile').development);
 
 const data = {
   me: {
     id: uuid(),
-    username: "robert",
+    username: 'robert',
     lists: [
       {
         id: uuid(),
@@ -15,21 +15,21 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Laver le chamal"
+            name: 'Laver le chamal',
           },
           {
             id: uuid(),
             checked: true,
-            name: "Acheter une poule"
+            name: 'Acheter une poule',
           },
           {
             id: uuid(),
             checked: false,
-            name: "Vendre le chat"
-          }
+            name: 'Vendre le chat',
+          },
         ],
 
-        owner: null
+        owner: null,
       },
       {
         id: uuid(),
@@ -37,14 +37,14 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Foo"
-          }
+            name: 'Foo',
+          },
         ],
 
-        owner: null
-      }
-    ]
-  }
+        owner: null,
+      },
+    ],
+  },
 };
 
 const lists = data.me.lists;
@@ -56,50 +56,53 @@ for (const list of lists) {
 
 module.exports = {
   Query: {
-    todo: async (_, { id }, { dataSources }) => {
+    todo: async (_, {id}, {dataSources}) => {
       return todos.find(t => t.id === id);
     },
-    todoList: async (_, { id }, { dataSources }) => {
+    todoList: async (_, {id}, {dataSources}) => {
       return lists.find(l => l.id === id);
     },
-    user: async (_, { id }, { dataSources }) => {
+    user: async (_, {id}, {dataSources}) => {
       if (id === data.me.id) return data.me;
       return null;
     },
-    me: async (_, {}, { dataSources }) => {
+    me: async (_, {}, {dataSources}) => {
       return data.me;
-    }
+    },
   },
   Mutation: {
-    login: async (_, { email, password }, { dataSources }) => {
+    login: async (_, {email, password}, {dataSources}) => {
       return jwt.sign(
         {
           email,
           password,
           iat: Math.floor(Date.now() / 1000) - 30,
-          exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+          exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
         },
-        secret
+        secret,
       );
     },
-    register: async (_, { email, password }, { dataSources }) => {
+    register: async (_, {email, password}, {dataSources}) => {
       return jwt.sign(
         {
           email,
           password,
           iat: Math.floor(Date.now() / 1000) - 30,
-          exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+          exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
         },
-        secret
+        secret,
       );
     },
-    todoCheck: async (_, { uuid, value }, { dataSources }) => {
-      await pg("todos")
-        .where("id", uuid)
+    todoCheck: async (_, {uuid, value}, {dataSources}) => {
+      await pg('todos')
+        .where('id', uuid)
         .update({
-          checked: value
+          checked: value,
         });
       return true;
-    }
-  }
+    },
+    updateCoords: async (_, {lat, long}, {dataSources}) => {
+      return true;
+    },
+  },
 };
