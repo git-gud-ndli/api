@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const secret = 'La bonne phrase';
+const secret = process.env.JWT_SECRET;
 const bcrypt = require('bcryptjs');
-const uuid = require("uuid/v1");
+const uuid = require('uuid/v1');
 
 const pg = require('knex')(require('./knexfile').development);
 
@@ -72,14 +72,14 @@ module.exports = {
     },
   },
   Mutation: {
-    login: async (_, { email, password }, { dataSources }) => {
+    login: async (_, {email, password}, {dataSources}) => {
       const hash = bcrypt.hashSync(password, 8);
       const users = await pg('users').where({
         email,
       });
       if (users.length < 1) throw new Error('user not found');
       const user = users[0];
-      if (! await bcrypt.compare(password, user.password)) {
+      if (!(await bcrypt.compare(password, user.password))) {
         throw new Error('bad credentials');
       }
 
@@ -92,7 +92,7 @@ module.exports = {
         secret,
       );
     },
-    register: async (_, { email, password }, { dataSources }) => {
+    register: async (_, {email, password}, {dataSources}) => {
       const hash = bcrypt.hashSync(password, 8);
       const user = await pg('users').insert({
         username: email,
@@ -113,6 +113,7 @@ module.exports = {
       );
     },
     todoCheck: async (_, {uuid, value}, {dataSources}) => {
+      console.log(uuid, value);
       await pg('todos')
         .where('id', uuid)
         .update({
