@@ -1,16 +1,9 @@
 const jwt = require('jsonwebtoken');
-<<<<<<< HEAD
 const secret = 'La bonne phrase';
 const bcrypt = require('bcryptjs');
 const uuid = require("uuid/v1");
 
 const pg = require('knex')(require('./knexfile').development);
-=======
-const uuid = require('uuid/v1');
-const secret = 'La bonne phrase';
-
-var pg = require('knex')(require('./knexfile').development);
->>>>>>> d2d7a177717dddc9bbf0222867bcc3087899252e
 
 const data = {
   me: {
@@ -79,7 +72,6 @@ module.exports = {
     },
   },
   Mutation: {
-<<<<<<< HEAD
     login: async (_, { email, password }, { dataSources }) => {
       const hash = bcrypt.hashSync(password, 8);
       const users = await pg('users').where({
@@ -91,9 +83,6 @@ module.exports = {
         throw new Error('bad credentials');
       }
 
-=======
-    login: async (_, {email, password}, {dataSources}) => {
->>>>>>> d2d7a177717dddc9bbf0222867bcc3087899252e
       return jwt.sign(
         {
           uid: user.id,
@@ -103,7 +92,6 @@ module.exports = {
         secret,
       );
     },
-<<<<<<< HEAD
     register: async (_, { email, password }, { dataSources }) => {
       const hash = bcrypt.hashSync(password, 8);
       const user = await pg('users').insert({
@@ -115,9 +103,6 @@ module.exports = {
 
       if (!user) throw new Error('could not create user');
 
-=======
-    register: async (_, {email, password}, {dataSources}) => {
->>>>>>> d2d7a177717dddc9bbf0222867bcc3087899252e
       return jwt.sign(
         {
           uid: user.id,
