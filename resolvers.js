@@ -11,23 +11,7 @@ module.exports = {
       ];
     },
     todo: async (_, {}, {dataSources}) => {
-      return [
-        {
-          id: 'fezfezf-zfzefzefez-fzf',
-          checked: false,
-          name: 'Laver le chamal',
-        },
-        {
-          id: 'ffzfezf-zfzefzefez-fzf',
-          checked: true,
-          name: 'Acheter une poule',
-        },
-        {
-          id: 'feoiezf-zfzefzefez-fzf',
-          checked: false,
-          name: 'Vendre le chat',
-        },
-      ];
+      return await pg('todos').select('*');
     },
     food: async (_, {}, {dataSources}) => {
       return [
