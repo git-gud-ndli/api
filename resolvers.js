@@ -2,8 +2,7 @@ const jwt = require('jsonwebtoken');
 const secret = 'La bonne phrase';
 const bcrypt = require('bcryptjs');
 const uuid = require("uuid/v1");
-
-const pg = require('knex')(require('./knexfile').development);
+const models = require('./models');
 
 const data = {
   me: {
@@ -57,49 +56,53 @@ for (const list of lists) {
 
 module.exports = {
   Query: {
-    todo: async (_, {id}, {dataSources}) => {
+    todo: async (_, { id }, { dataSources }) => {
       return todos.find(t => t.id === id);
     },
-    todoList: async (_, {id}, {dataSources}) => {
+    todoList: async (_, { id }, { dataSources }) => {
       return lists.find(l => l.id === id);
     },
-    user: async (_, {id}, {dataSources}) => {
+    user: async (_, { id }, { dataSources }) => {
       if (id === data.me.id) return data.me;
       return null;
     },
-    me: async (_, {}, {dataSources}) => {
+    me: async (_, { }, { dataSources }) => {
       return data.me;
     },
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
-      const hash = bcrypt.hashSync(password, 8);
-      const users = await pg('users').where({
-        email,
-      });
-      if (users.length < 1) throw new Error('user not found');
-      const user = users[0];
-      if (! await bcrypt.compare(password, user.password)) {
-        throw new Error('bad credentials');
+
+      try {
+        const user = await models.User.where({
+          email,
+        }).fetch();
+
+        if (!await bcrypt.compare(password, user.get('password'))) {
+          throw new Error('bad credentials');
+        }
+
+        return jwt.sign(
+          {
+            uid: user.id,
+            iat: Math.floor(Date.now() / 1000) - 30,
+            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+          },
+          secret,
+        );
+      } catch (e) {
+        throw new Error('login failed');
       }
 
-      return jwt.sign(
-        {
-          uid: user.id,
-          iat: Math.floor(Date.now() / 1000) - 30,
-          exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-        },
-        secret,
-      );
     },
     register: async (_, { email, password }, { dataSources }) => {
       const hash = bcrypt.hashSync(password, 8);
-      const user = await pg('users').insert({
+      const user = models.User.create({
         username: email,
         name: email,
         email,
         password: hash,
-      });
+      }).save();
 
       if (!user) throw new Error('could not create user');
 
@@ -112,15 +115,13 @@ module.exports = {
         secret,
       );
     },
-    todoCheck: async (_, {uuid, value}, {dataSources}) => {
-      await pg('todos')
-        .where('id', uuid)
-        .update({
-          checked: value,
-        });
+    todoCheck: async (_, { uuid, value }, { dataSources }) => {
+      const todo = models.Todo.where({ id: uuid }).fetch();
+      todo.checked = value;
+      todo.save();
       return true;
     },
-    updateCoords: async (_, {lat, long}, {dataSources}) => {
+    updateCoords: async (_, { lat, long }, { dataSources }) => {
       return true;
     },
   },
