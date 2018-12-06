@@ -84,7 +84,7 @@ module.exports = {
 
         return jwt.sign(
           {
-            uid: user.id,
+            uid: user.get('id'),
             iat: Math.floor(Date.now() / 1000) - 30,
             exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
           },
@@ -97,26 +97,28 @@ module.exports = {
     },
     register: async (_, { email, password }, { dataSources }) => {
       const hash = bcrypt.hashSync(password, 8);
-      const user = models.User.create({
-        username: email,
-        name: email,
-        email,
-        password: hash,
-      }).save();
 
-      if (!user) throw new Error('could not create user');
-
-      return jwt.sign(
-        {
-          uid: user.id,
-          iat: Math.floor(Date.now() / 1000) - 30,
-          exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-        },
-        secret,
-      );
+      try {
+        const user = await new models.User({
+          username: email,
+          name: email,
+          email,
+          password: hash,
+        }).save();
+        return jwt.sign(
+          {
+            uid: user.get('id'),
+            iat: Math.floor(Date.now() / 1000) - 30,
+            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+          },
+          secret,
+        );
+      } catch (e) {
+        throw new Error('could not create user: it may already exists');
+      }
     },
     todoCheck: async (_, { uuid, value }, { dataSources }) => {
-      const todo = models.Todo.where({ id: uuid }).fetch();
+      const todo = await models.Todo.where({ id: uuid }).fetch();
       todo.checked = value;
       todo.save();
       return true;
