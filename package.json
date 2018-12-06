@@ -10,7 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^2.2.6",
+    "bookshelf": "^0.13.3",
     "graphql": "^14.0.2",
-    "jsonwebtoken": "^8.4.0"
+    "jsonwebtoken": "^8.4.0",
+    "knex": "^0.13.0"
   }
 }
