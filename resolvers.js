@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
-const secret = "La bonne phrase";
 const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
 const models = require("./models");
+
+const secret = process.env.JWT_SECRET;
 
 const data = {
   me: {
@@ -66,8 +67,9 @@ module.exports = {
       if (id === data.me.id) return data.me;
       return null;
     },
-    me: async (_, {}, { dataSources }) => {
-      return data.me;
+    me: async (_, {}, { dataSources, authenticated }) => {
+      if (authenticated) return data.me;
+      return null;
     }
   },
   Mutation: {
