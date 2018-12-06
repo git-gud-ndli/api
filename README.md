@@ -13,6 +13,5 @@ Voici les informations de connexion à Postgres :
   - Mot de passe : `example`
   - Base de données : `postgres`
 
-
 Pour lancer les migrations : `npm run migrate`
 Pour rollback : `npm run rollback`
