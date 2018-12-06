@@ -12,5 +12,12 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8082:8080
+
+  api:
+    build: ./pm2
+    volumes:
+      - .:/app
+    ports:
+      - 8081:4000
 
