@@ -1,41 +1,31 @@
-const {ApolloServer, gql} = require('apollo-server');
-const resolvers = require('./resolvers');
+const { ApolloServer, gql } = require("apollo-server");
+const resolvers = require("./resolvers");
 
 const typeDefs = gql`
-  type News {
-    title: String
-    author: String
-    content: String
-  }
-
-  type Food {
+  type User {
     id: String
-    name: String
-    amount: Int
-    unit: String
+    username: String
+    lists(first: Int, after: String): [TodoList]
   }
 
-  type Todo {
+  type TodoItem {
     id: String
     checked: Boolean
     name: String
   }
 
-  type Recipies {
+  type TodoList {
     id: String
-    name: String
-    cooktime: Int
-    food: [Food]
+    items: [TodoItem]
+    owner: User
   }
 
   type Query {
-    news: [News]
+    todo(id: String): TodoItem
+    todoList(id: String): TodoList
 
-    todo: [Todo]
-
-    food: [Food]
-
-    recipies: [Recipies]
+    me: User
+    user(id: String): User
   }
 
   type Mutation {
@@ -47,8 +37,8 @@ const typeDefs = gql`
   }
 `;
 
-const server = new ApolloServer({typeDefs, resolvers});
+const server = new ApolloServer({ typeDefs, resolvers });
 
-server.listen().then(({url}) => {
+server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
