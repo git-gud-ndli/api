@@ -27,6 +27,43 @@ module.exports = {
         },
       ];
     },
+    food: async (_, {}, {dataSources}) => {
+      return [
+        {
+          id: 'feoiezf-zfzefzefez-fzf',
+          name: 'Pain',
+          amount: 25,
+          unit: 'g',
+        },
+        {
+          id: 'ffziezf-zfzefzefez-fzf',
+          name: 'Cigarette',
+          amount: 65,
+          unit: null,
+        },
+        {
+          id: 'fyuipozf-zfzefzefez-fzf',
+          name: 'Café',
+          amout: 67000,
+          unit: 'g',
+        },
+      ];
+    },
+    recipies: async (_, {}, {dataSources}) => {
+      return [
+        {
+          id: 'feoiezf-zfzefzefez-fzf',
+          name: 'Crepe',
+          food: [
+            {
+              id: 'fezezezef-ibhbihbihb',
+              name: 'pain',
+              amount: 13456,
+            },
+          ],
+        },
+      ];
+    },
   },
   Mutation: {
     login: async (_, {email, password}, {dataSources}) => {

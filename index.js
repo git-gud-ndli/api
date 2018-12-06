@@ -8,16 +8,34 @@ const typeDefs = gql`
     content: String
   }
 
+  type Food {
+    id: String
+    name: String
+    amount: Int
+    unit: String
+  }
+
   type Todo {
     id: String
     checked: Boolean
     name: String
   }
 
+  type Recipies {
+    id: String
+    name: String
+    cooktime: Int
+    food: [Food]
+  }
+
   type Query {
     news: [News]
 
     todo: [Todo]
+
+    food: [Food]
+
+    recipies: [Recipies]
   }
 
   type Mutation {
