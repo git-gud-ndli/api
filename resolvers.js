@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken');
-const secret = 'La bonne phrase';
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const secret = "La bonne phrase";
+const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
-const models = require('./models');
+const models = require("./models");
 
 const data = {
   me: {
     id: uuid(),
-    username: 'robert',
+    username: "robert",
     lists: [
       {
         id: uuid(),
@@ -15,21 +15,21 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: 'Laver le chamal',
+            name: "Laver le chamal"
           },
           {
             id: uuid(),
             checked: true,
-            name: 'Acheter une poule',
+            name: "Acheter une poule"
           },
           {
             id: uuid(),
             checked: false,
-            name: 'Vendre le chat',
-          },
+            name: "Vendre le chat"
+          }
         ],
 
-        owner: null,
+        owner: null
       },
       {
         id: uuid(),
@@ -37,14 +37,14 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: 'Foo',
-          },
+            name: "Foo"
+          }
         ],
 
-        owner: null,
-      },
-    ],
-  },
+        owner: null
+      }
+    ]
+  }
 };
 
 const lists = data.me.lists;
@@ -66,34 +66,32 @@ module.exports = {
       if (id === data.me.id) return data.me;
       return null;
     },
-    me: async (_, { }, { dataSources }) => {
+    me: async (_, {}, { dataSources }) => {
       return data.me;
-    },
+    }
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
-
       try {
         const user = await models.User.where({
-          email,
+          email
         }).fetch();
 
-        if (!await bcrypt.compare(password, user.get('password'))) {
-          throw new Error('bad credentials');
+        if (!(await bcrypt.compare(password, user.get("password")))) {
+          throw new Error("bad credentials");
         }
 
         return jwt.sign(
           {
-            uid: user.get('id'),
+            uid: user.get("id"),
             iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
           },
-          secret,
+          secret
         );
       } catch (e) {
-        throw new Error('login failed');
+        throw new Error("login failed");
       }
-
     },
     register: async (_, { email, password }, { dataSources }) => {
       const hash = bcrypt.hashSync(password, 8);
@@ -103,18 +101,18 @@ module.exports = {
           username: email,
           name: email,
           email,
-          password: hash,
+          password: hash
         }).save();
         return jwt.sign(
           {
-            uid: user.get('id'),
+            uid: user.get("id"),
             iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
           },
-          secret,
+          secret
         );
       } catch (e) {
-        throw new Error('could not create user: it may already exists');
+        throw new Error("could not create user: it may already exists");
       }
     },
     todoCheck: async (_, { uuid, value }, { dataSources }) => {
@@ -125,6 +123,6 @@ module.exports = {
     },
     updateCoords: async (_, { lat, long }, { dataSources }) => {
       return true;
-    },
-  },
+    }
+  }
 };
