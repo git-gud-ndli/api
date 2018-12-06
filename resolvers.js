@@ -67,10 +67,18 @@ module.exports = {
   },
   Mutation: {
     login: async (_, {email, password}, {dataSources}) => {
-      return jwt.sign({email, iat: Math.floor(Date.now() / 1000) - 30}, secret);
+      return jwt.sign({
+        email, 
+        iat: Math.floor(Date.now() / 1000) - 30,
+        exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+      }, secret);
     },
     register: async (_, {email, password}, {dataSources}) => {
-      return jwt.sign({email, iat: Math.floor(Date.now() / 1000) - 30}, secret);
+      return jwt.sign({
+        email, 
+        iat: Math.floor(Date.now() / 1000) - 30,
+        exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
+      }, secret);
     },
   },
 };
