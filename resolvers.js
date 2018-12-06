@@ -1,78 +1,105 @@
-const jwt = require('jsonwebtoken');
-const secret = 'La bonne phrase';
+const jwt = require("jsonwebtoken");
+const uuid = require("uuid/v1");
+const secret = "La bonne phrase";
 
-var pg = require('knex')(require('./knexfile').development);
+var pg = require("knex")(require("./knexfile").development);
+
+const data = {
+  me: {
+    id: uuid(),
+    username: "robert",
+    lists: [
+      {
+        id: uuid(),
+        items: [
+          {
+            id: uuid(),
+            checked: false,
+            name: "Laver le chamal"
+          },
+          {
+            id: uuid(),
+            checked: true,
+            name: "Acheter une poule"
+          },
+          {
+            id: uuid(),
+            checked: false,
+            name: "Vendre le chat"
+          }
+        ],
+
+        owner: null
+      },
+      {
+        id: uuid(),
+        items: [
+          {
+            id: uuid(),
+            checked: false,
+            name: "Foo"
+          }
+        ],
+
+        owner: null
+      }
+    ]
+  }
+};
+
+const lists = data.me.lists;
+const todos = [].concat(...lists.map(l => l.items));
+
+for (const list of lists) {
+  list.owner = data.me;
+}
 
 module.exports = {
   Query: {
-    news: async (_, {}, {dataSources}) => {
-      return [
-        {title: 'le bon titre', author: 'Paul', content: 'Le bon contenu'},
-      ];
+    todo: async (_, { id }, { dataSources }) => {
+      return todos.find(t => t.id === id);
     },
-    todo: async (_, {}, {dataSources}) => {
-      return await pg('todos').select('*');
+    todoList: async (_, { id }, { dataSources }) => {
+      return lists.find(l => l.id === id);
     },
-    food: async (_, {}, {dataSources}) => {
-      return [
-        {
-          id: 'feoiezf-zfzefzefez-fzf',
-          name: 'Pain',
-          amount: 25,
-          unit: 'g',
-        },
-        {
-          id: 'ffziezf-zfzefzefez-fzf',
-          name: 'Cigarette',
-          amount: 65,
-          unit: null,
-        },
-        {
-          id: 'fyuipozf-zfzefzefez-fzf',
-          name: 'Café',
-          amout: 67000,
-          unit: 'g',
-        },
-      ];
+    user: async (_, { id }, { dataSources }) => {
+      if (id === data.me.id) return data.me;
+      return null;
     },
-    recipies: async (_, {}, {dataSources}) => {
-      return [
-        {
-          id: 'feoiezf-zfzefzefez-fzf',
-          name: 'Crepe',
-          food: [
-            {
-              id: 'fezezezef-ibhbihbihb',
-              name: 'pain',
-              amount: 13456,
-            },
-          ],
-        },
-      ];
-    },
+    me: async (_, {}, { dataSources }) => {
+      return data.me;
+    }
   },
   Mutation: {
-    login: async (_, {email, password}, {dataSources}) => {
-      return jwt.sign({
-        email,
-        password,
-        iat: Math.floor(Date.now() / 1000) - 30,
-        exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-      }, secret);
+    login: async (_, { email, password }, { dataSources }) => {
+      return jwt.sign(
+        {
+          email,
+          password,
+          iat: Math.floor(Date.now() / 1000) - 30,
+          exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+        },
+        secret
+      );
     },
-    register: async (_, {email, password}, {dataSources}) => {
-      return jwt.sign({
-        email,
-        password,
-        iat: Math.floor(Date.now() / 1000) - 30,
-        exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-      }, secret);
+    register: async (_, { email, password }, { dataSources }) => {
+      return jwt.sign(
+        {
+          email,
+          password,
+          iat: Math.floor(Date.now() / 1000) - 30,
+          exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+        },
+        secret
+      );
     },
-    todoCheck: async (_, {uuid, value}, {dataSources}) => {
-      await pg('todos').where('id', uuid).update({
-        checked: value,
-      });
+    todoCheck: async (_, { uuid, value }, { dataSources }) => {
+      await pg("todos")
+        .where("id", uuid)
+        .update({
+          checked: value
+        });
       return true;
-    },
-  },
+    }
+  }
 };
