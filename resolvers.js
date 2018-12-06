@@ -72,5 +72,8 @@ module.exports = {
     register: async (_, {email, password}, {dataSources}) => {
       return jwt.sign({email, iat: Math.floor(Date.now() / 1000) - 30}, secret);
     },
+    todoCheck: async (_, {uuid, value}, {dataSources}) => {
+      return true;
+    },
   },
 };

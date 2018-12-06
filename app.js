@@ -39,9 +39,11 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    login(email: String, password: String): String
+    login(email: String!, password: String!): String
 
-    register(email: String, password: String): String
+    register(email: String!, password: String!): String
+
+    todoCheck(uuid: String, value: Boolean): Boolean
   }
 `;
 
