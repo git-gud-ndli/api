@@ -1,8 +1,9 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const secret = 'La bonne phrase';
+const bcrypt = require('bcryptjs');
 const uuid = require("uuid/v1");
-const secret = "La bonne phrase";
 
-var pg = require("knex")(require("./knexfile").development);
+const pg = require('knex')(require('./knexfile').development);
 
 const data = {
   me: {
@@ -72,10 +73,19 @@ module.exports = {
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
+      const hash = bcrypt.hashSync(password, 8);
+      const users = await pg('users').where({
+        email,
+      });
+      if (users.length < 1) throw new Error('user not found');
+      const user = users[0];
+      if (! await bcrypt.compare(password, user.password)) {
+        throw new Error('bad credentials');
+      }
+
       return jwt.sign(
         {
-          email,
-          password,
+          uid: user.id,
           iat: Math.floor(Date.now() / 1000) - 30,
           exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
         },
@@ -83,10 +93,19 @@ module.exports = {
       );
     },
     register: async (_, { email, password }, { dataSources }) => {
+      const hash = bcrypt.hashSync(password, 8);
+      const user = await pg('users').insert({
+        username: email,
+        name: email,
+        email,
+        password: hash,
+      });
+
+      if (!user) throw new Error('could not create user');
+
       return jwt.sign(
         {
-          email,
-          password,
+          uid: user.id,
           iat: Math.floor(Date.now() / 1000) - 30,
           exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
         },
