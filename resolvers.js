@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const secret = 'La bonne phrase';
 
+var pg = require('knex')(require('./knexfile').development);
+
 module.exports = {
   Query: {
     news: async (_, {}, {dataSources}) => {
@@ -68,19 +70,24 @@ module.exports = {
   Mutation: {
     login: async (_, {email, password}, {dataSources}) => {
       return jwt.sign({
-        email, 
+        email,
+        password,
         iat: Math.floor(Date.now() / 1000) - 30,
         exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
       }, secret);
     },
     register: async (_, {email, password}, {dataSources}) => {
       return jwt.sign({
-        email, 
+        email,
+        password,
         iat: Math.floor(Date.now() / 1000) - 30,
         exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
       }, secret);
     },
     todoCheck: async (_, {uuid, value}, {dataSources}) => {
+      await pg('todos').where('id', uuid).update({
+        checked: value,
+      });
       return true;
     },
   },

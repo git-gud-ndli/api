@@ -1,7 +1,7 @@
 
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('todos', function (table) {
-    table.increments();
+    table.uuid('id').unique().primary();
     table.string('name');
     table.boolean('checked');
     table.timestamps();
