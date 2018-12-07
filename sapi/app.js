@@ -16,7 +16,6 @@ function set(key, value) {
 }
 
 function get(e) {
-  console.log(e, connection.get(e));
   return new Promise((resolve, reject) => {
     connection.get(e, (err, data) => {
       if (err) reject(err);
@@ -37,7 +36,6 @@ const register = prom.register;
 async function update() {
   prom.register.clear();
   let jean = await get("jean");
-  console.log(jean);
   for (let i in jean) {
     let cur = new prom.Gauge({
       name: jean[i].name,
