@@ -174,5 +174,9 @@ module.exports = {
         .save()
         .then(expose);
     },
+    updateFood: async (_, { name, amount }, { dataSources }) => {
+      await axios.get(`http://sapi/add?name=${name}&amount=${amount}`);
+      return "done";
+    },
   },
 };

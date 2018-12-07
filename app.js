@@ -92,6 +92,8 @@ const typeDefs = gql`
     createTodoList(name: String!, items: [TodoItemParam]): TodoList
 
     createTodoItem(listId: String!, item: TodoItemParam!): TodoItem
+
+    updateFood(name: String!, amount: Int!): String
   }
 `;
 

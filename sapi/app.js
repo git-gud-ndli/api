@@ -9,21 +9,33 @@ let connection = redis.createClient(
   process.env.REDIS_HOST,
 );
 
+let jean = [{ name: "pain", amount: 15 }, { name: "farine", amount: 30 }];
 const register = prom.register;
 
-const pain = new prom.Gauge({
-  name: "pain",
-  help: "pain_help",
-  labelNames: ["user"],
-});
-pain.set({ user: "jean" }, 10);
+function update() {
+  prom.register.clear();
+  for (let i in jean) {
+    let cur = new prom.Gauge({
+      name: jean[i].name,
+      help: "no",
+      labelNames: ["user"],
+    });
+    cur.set({ user: "jean" }, Number(jean[i].amount));
+  }
+}
 
-const farine = new prom.Gauge({
-  name: "farine",
-  help: "farine_help",
-  labelNames: ["user"],
+update();
+
+server.get("/add", (req, res) => {
+  for (let i in jean) {
+    if (jean[i].name == req.query.name) {
+      jean[i].amount = req.query.amount;
+      update();
+      break;
+    }
+  }
+  res.end("job done");
 });
-farine.set({ user: "jean" }, 15);
 
 server.get("/metrics", (req, res) => {
   res.set("Content-Type", register.contentType);
