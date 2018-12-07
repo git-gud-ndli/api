@@ -68,13 +68,13 @@ const server = new ApolloServer({
         return {
           authenticated: true,
           user,
-          headers: req.headers
+          headers: req.headers,
         };
       }
     }
 
     return { authenticated: false, headers: req.headers };
-  }
+  },
 });
 
 server.listen().then(({ url }) => {

@@ -19,21 +19,21 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Laver le chamal"
+            name: "Laver le chamal",
           },
           {
             id: uuid(),
             checked: true,
-            name: "Acheter une poule"
+            name: "Acheter une poule",
           },
           {
             id: uuid(),
             checked: false,
-            name: "Vendre le chat"
-          }
+            name: "Vendre le chat",
+          },
         ],
 
-        owner: null
+        owner: null,
       },
       {
         id: uuid(),
@@ -41,14 +41,14 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Foo"
-          }
+            name: "Foo",
+          },
         ],
 
-        owner: null
-      }
-    ]
-  }
+        owner: null,
+      },
+    ],
+  },
 };
 
 const lists = data.me.lists;
@@ -89,19 +89,19 @@ module.exports = {
         .catch(function(error) {
           console.log(error);
         });
-    }
+    },
   },
   User: {
-    lists: graphQLBookshelf.resolverFactory(models.Todo)
+    lists: graphQLBookshelf.resolverFactory(models.Todo),
   },
   TodoList: {
-    owner: graphQLBookshelf.resolverFactory(models.User)
+    owner: graphQLBookshelf.resolverFactory(models.User),
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
       try {
         const user = await models.User.where({
-          email
+          email,
         }).fetch();
 
         if (!(await bcrypt.compare(password, user.get("password")))) {
@@ -121,7 +121,7 @@ module.exports = {
           username: email,
           name: email,
           email,
-          password: hash
+          password: hash,
         }).save();
         return jwt.sign({ uid: user.get("id") }, secret, { expiresIn: "2h" });
       } catch (e) {
@@ -136,6 +136,6 @@ module.exports = {
     },
     updateCoords: async (_, { lat, long }, { dataSources }) => {
       return true;
-    }
-  }
+    },
+  },
 };
