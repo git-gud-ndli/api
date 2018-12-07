@@ -145,7 +145,7 @@ module.exports = {
     },
     todoCheck: async (_, { uuid, value }, { dataSources }) => {
       const todo = await models.TodoItem.where({ id: uuid }).fetch();
-      todo.checked = value;
+      todo.set("checked", value);
       todo.save();
       return true;
     },
