@@ -49,6 +49,10 @@ const typeDefs = gql`
   type Weather {
     temperature: Float
     humidity: Float
+    ozone: Float
+    windSpeed: Float
+    summary: String
+    icon: String
     alerts: [Alert]
   }
 

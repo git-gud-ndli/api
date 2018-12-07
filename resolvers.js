@@ -96,12 +96,27 @@ module.exports = {
           }/${lat},${long}`,
         )
         .then(function(response) {
-          let { humidity, temperature } = response.data.currently;
+          let {
+            humidity,
+            temperature,
+            ozone,
+            windSpeed,
+            summary,
+            icon,
+          } = response.data.currently;
           if (!response.data.alerts) response.data.alerts = [];
           response.data.alerts.map(a => {
             delete a.uri;
           });
-          return { humidity, temperature, alerts: response.data.alerts };
+          return {
+            humidity,
+            temperature,
+            ozone,
+            windSpeed,
+            summary,
+            icon,
+            alerts: response.data.alerts,
+          };
         })
         .catch(function(error) {
           console.log(error);
