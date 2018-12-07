@@ -75,8 +75,8 @@ module.exports = {
         .get("https://newsapi.org/v2/top-headlines", {
           params: {
             country: geo.country,
-            apiKey: "07b6a91d43084b3ab23e2f99b5d67e37"
-          }
+            apiKey: process.env.NEWS_API_KEY,
+          },
         })
         .then(function(response) {
           response.data.articles.map(a => {
