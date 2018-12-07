@@ -1,8 +1,13 @@
 const express = require("express");
-const cluster = require("cluster");
+const redis = require("redis");
 const server = express();
 
 const prom = require("prom-client");
+
+let connection = redis.createClient(
+  process.env.REDIS_PORT,
+  process.env.REDIS_HOST,
+);
 
 const register = prom.register;
 
