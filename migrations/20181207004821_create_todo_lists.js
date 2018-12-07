@@ -5,7 +5,7 @@ exports.up = function(knex, Promise) {
       table
         .uuid("id")
         .unique()
-        .defaultTo(knex.raw("uuid_generate_v4()"))
+        .defaultTo(knex.raw("gen_random_uuid()"))
         .primary();
       table.string("name");
       table
