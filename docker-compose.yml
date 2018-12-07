@@ -18,6 +18,7 @@ services:
 
   sapi:
     build: ./pm2
+    restart: always
     volumes:
       - ./sapi:/app
     ports:

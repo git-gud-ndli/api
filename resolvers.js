@@ -82,6 +82,17 @@ module.exports = {
           console.log(error);
         });
     },
+    food: async (_, {}, ctx) => {
+      let req = await axios.get(
+        'http://prom:9090/api/v1/query?query={user%3D"jean"}',
+      );
+      let res = [];
+      req.data.data.result.map(e => {
+        res.push({ amount: e.value[1], name: e.metric.__name__ });
+      });
+
+      return res;
+    },
   },
   User: {
     lists: (parent, {}, ctx, info) =>

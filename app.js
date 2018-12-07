@@ -56,6 +56,11 @@ const typeDefs = gql`
     alerts: [Alert]
   }
 
+  type Food {
+    name: String
+    amount: Int
+  }
+
   type Query {
     todo(id: String): TodoItem
     todoList(id: String): TodoList
@@ -66,6 +71,8 @@ const typeDefs = gql`
     news: [News]
 
     weather(lat: Float!, long: Float!): Weather
+
+    food: [Food]
   }
 
   input TodoItemParam {
