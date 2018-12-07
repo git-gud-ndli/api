@@ -29,6 +29,20 @@ const typeDefs = gql`
     content: String
   }
 
+  type Alert {
+    title: String
+    regions: [String]
+    severity: String
+    time: Int
+    expires: Int
+    description: String
+  }
+  type Weather {
+    temperature: Float
+    humidity: Float
+    alerts: [Alert]
+  }
+
   type Query {
     todo(id: String): TodoItem
     todoList(id: String): TodoList
@@ -37,6 +51,8 @@ const typeDefs = gql`
     user(id: String): User
 
     news: [News]
+
+    weather(lat: Float!, long: Float!): Weather
   }
 
   type Mutation {

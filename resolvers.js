@@ -90,6 +90,25 @@ module.exports = {
           console.log(error);
         });
     },
+    weather: async (_, { lat, long }, ctx) => {
+      return await axios
+        .get(
+          `https://api.darksky.net/forecast/${
+            process.env.WEATHER_API_KEY
+          }/${lat},${long}`,
+        )
+        .then(function(response) {
+          let { humidity, temperature } = response.data.currently;
+          if (!response.data.alerts) response.data.alerts = [];
+          response.data.alerts.map(a => {
+            delete a.uri;
+          });
+          return { humidity, temperature, alerts: response.data.alerts };
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
   },
   User: {
     lists: graphQLBookshelf.resolverFactory(models.Todo),
