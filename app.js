@@ -6,18 +6,27 @@ const models = require("./models");
 const typeDefs = gql`
   type User {
     id: String
+    created_at: String
+    updated_at: String
     username: String
+    email: String
     lists: [TodoList]
   }
 
   type TodoItem {
     id: String
+    created_at: String
+    updated_at: String
+    list: TodoList
     checked: Boolean
     name: String
   }
 
   type TodoList {
     id: String
+    created_at: String
+    updated_at: String
+    name: String
     items: [TodoItem]
     owner: User
   }
