@@ -66,6 +66,7 @@ const server = new ApolloServer({
         return {
           authenticated: true,
           userId: content.uid,
+	    headers: req.headers
         };
       }
     }
