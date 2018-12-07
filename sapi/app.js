@@ -4,10 +4,11 @@ const server = express();
 
 const prom = require("prom-client");
 
-let connection = redis.createClient(
-  process.env.REDIS_PORT,
-  process.env.REDIS_HOST,
-);
+let connection = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD,
+});
 
 function set(key, value) {
   connection.set(key, JSON.stringify(value), (...args) =>
