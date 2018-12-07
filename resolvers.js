@@ -84,7 +84,7 @@ module.exports = {
     },
     food: async (_, {}, ctx) => {
       let req = await axios.get(
-        'http://prom:9090/api/v1/query?query={user%3D"jean"}',
+        `http://${process.env.PROM_URL}/api/v1/query?query={user%3D"jean"}`,
       );
       let res = [];
       req.data.data.result.map(e => {

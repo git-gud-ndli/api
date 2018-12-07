@@ -50,6 +50,7 @@ services:
       JWT_SECRET: chamal
       NEWS_API_KEY: 07b6a91d43084b3ab23e2f99b5d67e37
       WEATHER_API_KEY: 7aeb3d7f3f5cf3e119bedccefb7b10e6
+      PROM_URL: prom:9090
     volumes:
       - .:/app
     ports:
