@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
-const graphQLBookshelf = require("graphql-bookshelfjs");
 const models = require("./models");
+const graphQLBookshelf = require("graphql-bookshelfjs");
+const axios = require("axios");
+const geoip = require("geoip-lite");
 
 const secret = process.env.JWT_SECRET;
 
@@ -66,6 +68,27 @@ module.exports = {
     me: async (_, {}, { dataSources, authenticated, user }) => {
       if (authenticated) return data.me;
       return null;
+    },
+    news: async (_, {}, ctx) => {
+      var geo = geoip.lookup(ctx.headers["x-forwarded-for"]);
+      return await axios
+        .get("https://newsapi.org/v2/top-headlines", {
+          params: {
+            country: geo.country,
+            apiKey: "07b6a91d43084b3ab23e2f99b5d67e37"
+          }
+        })
+        .then(function(response) {
+          response.data.articles.map(a => {
+            delete a.source;
+            delete a.author;
+            delete a.urlToImage;
+          });
+          return response.data.articles;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
   },
   User: {
@@ -85,14 +108,7 @@ module.exports = {
           throw new Error("bad credentials");
         }
 
-        return jwt.sign(
-          {
-            uid: user.get("id"),
-            iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
-          },
-          secret
-        );
+        return jwt.sign({ uid: user.get("id") }, secret, { expiresIn: "2h" });
       } catch (e) {
         throw new Error("login failed");
       }
@@ -107,14 +123,7 @@ module.exports = {
           email,
           password: hash
         }).save();
-        return jwt.sign(
-          {
-            uid: user.get("id"),
-            iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
-          },
-          secret
-        );
+        return jwt.sign({ uid: user.get("id") }, secret, { expiresIn: "2h" });
       } catch (e) {
         throw new Error("could not create user: it may already exists");
       }

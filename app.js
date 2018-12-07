@@ -22,12 +22,21 @@ const typeDefs = gql`
     owner: User
   }
 
+  type News {
+    url: String
+    title: String
+    publishedAt: String
+    content: String
+  }
+
   type Query {
     todo(id: String): TodoItem
     todoList(id: String): TodoList
 
     me: User
     user(id: String): User
+
+    news: [News]
   }
 
   type Mutation {
@@ -58,12 +67,13 @@ const server = new ApolloServer({
         const user = await models.User.where("id", content.uid).fetch();
         return {
           authenticated: true,
-          user
+          user,
+          headers: req.headers
         };
       }
     }
 
-    return { authenticated: false };
+    return { authenticated: false, headers: req.headers };
   }
 });
 
