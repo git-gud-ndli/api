@@ -143,11 +143,10 @@ module.exports = {
         throw new Error("could not create user: it may already exists");
       }
     },
-    todoCheck: async (_, { uuid, value }, { dataSources }) => {
-      const todo = await models.TodoItem.where({ id: uuid }).fetch();
-      todo.set("checked", value);
-      todo.save();
-      return true;
+    updateTodoItem: async (_, { id, input }, { dataSources }) => {
+      const todo = await models.TodoItem.where({ id }).fetch();
+      todo.set(input);
+      return todo.save().then(expose);
     },
     updateCoords: async (_, { lat, long }, { dataSources }) => {
       return true;
@@ -167,13 +166,11 @@ module.exports = {
       return list;
     },
     createTodoItem: async (_, { listId, item }, { user }) => {
-      return expose(
-        await new models.TodoItem({
+      return new models.TodoItem({
           ...item,
           checked: false,
           list_id: listId,
-        }).save(),
-      );
+        }).save().then(expose),
     },
   },
 };

@@ -77,6 +77,7 @@ const typeDefs = gql`
 
   input TodoItemParam {
     name: String
+    checked: Boolean
   }
 
   type Mutation {
@@ -84,7 +85,7 @@ const typeDefs = gql`
 
     register(email: String!, password: String!): String
 
-    todoCheck(uuid: String, value: Boolean): Boolean
+    updateTodoItem(id: String, input: TodoItemParam): TodoItem
 
     updateCoords(lat: String, long: String): Boolean
 
