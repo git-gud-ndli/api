@@ -1,6 +1,6 @@
-const { ApolloServer, gql } = require("apollo-server");
-const jwt = require("jsonwebtoken");
-const resolvers = require("./resolvers");
+const {ApolloServer, gql} = require('apollo-server');
+const jwt = require('jsonwebtoken');
+const resolvers = require('./resolvers');
 
 const typeDefs = gql`
   type User {
@@ -21,12 +21,21 @@ const typeDefs = gql`
     owner: User
   }
 
+  type News {
+    url: String
+    title: String
+    publishedAt: String
+    content: String
+  }
+
   type Query {
     todo(id: String): TodoItem
     todoList(id: String): TodoList
 
     me: User
     user(id: String): User
+
+    news: [News]
   }
 
   type Mutation {
@@ -43,28 +52,28 @@ const typeDefs = gql`
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    const header = req.headers.authorization || "";
+  context: ({req}) => {
+    const header = req.headers.authorization || '';
 
     if (header) {
-      const s = header.split(" ");
-      if (s.length == 2 && s[0] == "Bearer") {
+      const s = header.split(' ');
+      if (s.length == 2 && s[0] == 'Bearer') {
         const token = s[1];
         if (!jwt.verify(token, process.env.JWT_SECRET))
-          throw new Error("Invalid token");
+          throw new Error('Invalid token');
 
         const content = jwt.decode(token);
         return {
           authenticated: true,
-          userId: content.uid
+          userId: content.uid,
         };
       }
     }
 
-    return { authenticated: false };
-  }
+    return {authenticated: false, headers: req.headers};
+  },
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({url}) => {
   console.log(`🚀  Server ready at ${url}`);
 });

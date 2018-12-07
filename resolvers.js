@@ -1,14 +1,16 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const uuid = require("uuid/v1");
-const models = require("./models");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const uuid = require('uuid/v1');
+const models = require('./models');
+const axios = require('axios');
+const geoip = require('geoip-lite');
 
 const secret = process.env.JWT_SECRET;
 
 const data = {
   me: {
     id: uuid(),
-    username: "robert",
+    username: 'robert',
     lists: [
       {
         id: uuid(),
@@ -16,21 +18,21 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Laver le chamal"
+            name: 'Laver le chamal',
           },
           {
             id: uuid(),
             checked: true,
-            name: "Acheter une poule"
+            name: 'Acheter une poule',
           },
           {
             id: uuid(),
             checked: false,
-            name: "Vendre le chat"
-          }
+            name: 'Vendre le chat',
+          },
         ],
 
-        owner: null
+        owner: null,
       },
       {
         id: uuid(),
@@ -38,14 +40,14 @@ const data = {
           {
             id: uuid(),
             checked: false,
-            name: "Foo"
-          }
+            name: 'Foo',
+          },
         ],
 
-        owner: null
-      }
-    ]
-  }
+        owner: null,
+      },
+    ],
+  },
 };
 
 const lists = data.me.lists;
@@ -57,45 +59,66 @@ for (const list of lists) {
 
 module.exports = {
   Query: {
-    todo: async (_, { id }, { dataSources }) => {
+    todo: async (_, {id}, {dataSources}) => {
       return todos.find(t => t.id === id);
     },
-    todoList: async (_, { id }, { dataSources }) => {
+    todoList: async (_, {id}, {dataSources}) => {
       return lists.find(l => l.id === id);
     },
-    user: async (_, { id }, { dataSources }) => {
+    user: async (_, {id}, {dataSources}) => {
       if (id === data.me.id) return data.me;
       return null;
     },
-    me: async (_, {}, { dataSources, authenticated }) => {
+    me: async (_, {}, {dataSources, authenticated}) => {
       if (authenticated) return data.me;
       return null;
-    }
+    },
+    news: async (_, {}, ctx) => {
+      var geo = geoip.lookup(ctx.headers['x-forwarded-for']);
+      return await axios
+        .get('https://newsapi.org/v2/top-headlines', {
+          params: {
+            country: geo.country,
+            apiKey: '07b6a91d43084b3ab23e2f99b5d67e37',
+          },
+        })
+        .then(function(response) {
+          response.data.articles.map(a => {
+            delete a.source;
+            delete a.author;
+            delete a.urlToImage;
+          });
+          return response.data.articles;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
   },
   Mutation: {
-    login: async (_, { email, password }, { dataSources }) => {
+    login: async (_, {email, password}, {dataSources}) => {
       try {
         const user = await models.User.where({
-          email
+          email,
         }).fetch();
 
-        if (!(await bcrypt.compare(password, user.get("password")))) {
-          throw new Error("bad credentials");
+        if (!(await bcrypt.compare(password, user.get('password')))) {
+          throw new Error('bad credentials');
         }
 
         return jwt.sign(
           {
-            uid: user.get("id"),
+            uid: user.get('id'),
             iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
           },
-          secret
+          secret,
         );
       } catch (e) {
-        throw new Error("login failed");
+        throw new Error('login failed');
       }
     },
-    register: async (_, { email, password }, { dataSources }) => {
+    register: async (_, {email, password}, {dataSources}) => {
       const hash = bcrypt.hashSync(password, 8);
 
       try {
@@ -103,28 +126,28 @@ module.exports = {
           username: email,
           name: email,
           email,
-          password: hash
+          password: hash,
         }).save();
         return jwt.sign(
           {
-            uid: user.get("id"),
+            uid: user.get('id'),
             iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200 // 2 hours validity
+            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
           },
-          secret
+          secret,
         );
       } catch (e) {
-        throw new Error("could not create user: it may already exists");
+        throw new Error('could not create user: it may already exists');
       }
     },
-    todoCheck: async (_, { uuid, value }, { dataSources }) => {
-      const todo = await models.Todo.where({ id: uuid }).fetch();
+    todoCheck: async (_, {uuid, value}, {dataSources}) => {
+      const todo = await models.Todo.where({id: uuid}).fetch();
       todo.checked = value;
       todo.save();
       return true;
     },
-    updateCoords: async (_, { lat, long }, { dataSources }) => {
+    updateCoords: async (_, {lat, long}, {dataSources}) => {
       return true;
-    }
-  }
+    },
+  },
 };
