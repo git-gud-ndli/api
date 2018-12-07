@@ -106,14 +106,7 @@ module.exports = {
           throw new Error('bad credentials');
         }
 
-        return jwt.sign(
-          {
-            uid: user.get('id'),
-            iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-          },
-          secret,
-        );
+        return jwt.sign({ uid: user.get("id") }, secret, { expiresIn: "2h" });
       } catch (e) {
         throw new Error('login failed');
       }
@@ -128,14 +121,7 @@ module.exports = {
           email,
           password: hash,
         }).save();
-        return jwt.sign(
-          {
-            uid: user.get('id'),
-            iat: Math.floor(Date.now() / 1000) - 30,
-            exp: Math.floor(Date.now() / 1000) + 7200, // 2 hours validity
-          },
-          secret,
-        );
+        return jwt.sign({ uid: user.get("id") }, secret, { expiresIn: "2h" });
       } catch (e) {
         throw new Error('could not create user: it may already exists');
       }
