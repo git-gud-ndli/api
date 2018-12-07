@@ -68,6 +68,10 @@ const typeDefs = gql`
     weather(lat: Float!, long: Float!): Weather
   }
 
+  input TodoItemParam {
+    name: String
+  }
+
   type Mutation {
     login(email: String!, password: String!): String
 
@@ -76,6 +80,10 @@ const typeDefs = gql`
     todoCheck(uuid: String, value: Boolean): Boolean
 
     updateCoords(lat: String, long: String): Boolean
+
+    createTodoList(name: String!, items: [TodoItemParam]): TodoList
+
+    createTodoItem(listId: String!, item: TodoItemParam!): TodoItem
   }
 `;
 
