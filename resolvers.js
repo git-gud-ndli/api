@@ -167,10 +167,12 @@ module.exports = {
     },
     createTodoItem: async (_, { listId, item }, { user }) => {
       return new models.TodoItem({
-          ...item,
-          checked: false,
-          list_id: listId,
-        }).save().then(expose),
+        ...item,
+        checked: false,
+        list_id: listId,
+      })
+        .save()
+        .then(expose);
     },
   },
 };
