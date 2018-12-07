@@ -2,69 +2,29 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
 const models = require("./models");
-const graphQLBookshelf = require("graphql-bookshelfjs");
 const axios = require("axios");
 const geoip = require("geoip-lite");
 
 const secret = process.env.JWT_SECRET;
 
-const data = {
-  me: {
-    id: uuid(),
-    username: "robert",
-    lists: [
-      {
-        id: uuid(),
-        items: [
-          {
-            id: uuid(),
-            checked: false,
-            name: "Laver le chamal",
-          },
-          {
-            id: uuid(),
-            checked: true,
-            name: "Acheter une poule",
-          },
-          {
-            id: uuid(),
-            checked: false,
-            name: "Vendre le chat",
-          },
-        ],
-
-        owner: null,
-      },
-      {
-        id: uuid(),
-        items: [
-          {
-            id: uuid(),
-            checked: false,
-            name: "Foo",
-          },
-        ],
-
-        owner: null,
-      },
-    ],
-  },
-};
-
-const lists = data.me.lists;
-const todos = [].concat(...lists.map(l => l.items));
-
-for (const list of lists) {
-  list.owner = data.me;
-}
+const expose = item => Object.assign(item, item.serialize({ shallow: true }));
 
 module.exports = {
   Query: {
-    todo: graphQLBookshelf.resolverFactory(models.TodoItem),
-    todoList: graphQLBookshelf.resolverFactory(models.TodoList),
-    user: graphQLBookshelf.resolverFactory(models.User),
+    todo: (_, { id }) =>
+      models.TodoItem.where("id", id)
+        .fetch()
+        .then(expose),
+    todoList: (_, { id }) =>
+      models.TodoList.where("id", id)
+        .fetch()
+        .then(expose),
+    user: (_, { id }) =>
+      models.User.where("id", id)
+        .fetch()
+        .then(expose),
     me: async (_, {}, { dataSources, authenticated, user }) => {
-      if (authenticated) return data.me;
+      if (authenticated) return expose(user);
       return null;
     },
     news: async (_, {}, ctx) => {
@@ -124,14 +84,22 @@ module.exports = {
     },
   },
   User: {
-    lists: graphQLBookshelf.resolverFactory(models.TodoList),
+    lists: (parent, {}, ctx, info) =>
+      parent
+        .related(info.fieldName)
+        .fetch()
+        .then(c => c.map(expose)),
   },
   TodoList: {
-    owner: graphQLBookshelf.resolverFactory(models.User),
-    items: graphQLBookshelf.resolverFactory(models.TodoItem),
+    owner: (parent, {}, ctx, info) => expose(parent.related(info.fieldName)),
+    items: (parent, {}, ctx, info) =>
+      parent
+        .related(info.fieldName)
+        .fetch()
+        .then(c => c.map(expose)),
   },
   TodoItem: {
-    list: graphQLBookshelf.resolverFactory(models.TodoList),
+    list: (parent, {}, ctx, info) => expose(parent.related(info.fieldName)),
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
@@ -172,6 +140,29 @@ module.exports = {
     },
     updateCoords: async (_, { lat, long }, { dataSources }) => {
       return true;
+    },
+    createTodoList: async (_, { name, items }, { user }) => {
+      const list = await new models.TodoList({
+        name,
+        owner_id: user.get("id"),
+      }).save();
+      await models.TodoItems.forge(
+        items.map(item => ({
+          ...item,
+          checked: false,
+          list_id: list.get("id"),
+        })),
+      ).invokeThen("save", null);
+      return list;
+    },
+    createTodoItem: async (_, { listId, item }, { user }) => {
+      return expose(
+        await new models.TodoItem({
+          ...item,
+          checked: false,
+          list_id: listId,
+        }).save(),
+      );
     },
   },
 };
