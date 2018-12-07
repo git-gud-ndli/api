@@ -15,6 +15,7 @@
     "bcryptjs": "^2.4.3",
     "bookshelf": "^0.13.3",
     "graphql": "^14.0.2",
+    "graphql-bookshelfjs": "^1.0.8",
     "jsonwebtoken": "^8.4.0",
     "knex": "^0.13.0",
     "pg": "^7.7.1",

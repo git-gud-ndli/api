@@ -1,12 +1,13 @@
 const { ApolloServer, gql } = require("apollo-server");
 const jwt = require("jsonwebtoken");
 const resolvers = require("./resolvers");
+const models = require("./models");
 
 const typeDefs = gql`
   type User {
     id: String
     username: String
-    lists(first: Int, after: String): [TodoList]
+    lists: [TodoList]
   }
 
   type TodoItem {
@@ -43,7 +44,7 @@ const typeDefs = gql`
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
+  context: async ({ req }) => {
     const header = req.headers.authorization || "";
 
     if (header) {
@@ -54,9 +55,10 @@ const server = new ApolloServer({
           throw new Error("Invalid token");
 
         const content = jwt.decode(token);
+        const user = await models.User.where("id", content.uid).fetch();
         return {
           authenticated: true,
-          userId: content.uid
+          user
         };
       }
     }

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const uuid = require("uuid/v1");
+const graphQLBookshelf = require("graphql-bookshelfjs");
 const models = require("./models");
 
 const secret = process.env.JWT_SECRET;
@@ -60,17 +61,18 @@ module.exports = {
     todo: async (_, { id }, { dataSources }) => {
       return todos.find(t => t.id === id);
     },
-    todoList: async (_, { id }, { dataSources }) => {
-      return lists.find(l => l.id === id);
-    },
-    user: async (_, { id }, { dataSources }) => {
-      if (id === data.me.id) return data.me;
-      return null;
-    },
-    me: async (_, {}, { dataSources, authenticated }) => {
+    todoList: graphQLBookshelf.resolverFactory(models.Todo),
+    user: graphQLBookshelf.resolverFactory(models.User),
+    me: async (_, {}, { dataSources, authenticated, user }) => {
       if (authenticated) return data.me;
       return null;
     }
+  },
+  User: {
+    lists: graphQLBookshelf.resolverFactory(models.Todo)
+  },
+  TodoList: {
+    owner: graphQLBookshelf.resolverFactory(models.User)
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
