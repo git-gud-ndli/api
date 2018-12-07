@@ -9,11 +9,35 @@ let connection = redis.createClient(
   process.env.REDIS_HOST,
 );
 
-let jean = [{ name: "pain", amount: 15 }, { name: "farine", amount: 30 }];
+function set(key, value) {
+  connection.set(key, JSON.stringify(value), (...args) =>
+    console.log("done set", ...args),
+  );
+}
+
+function get(e) {
+  console.log(e, connection.get(e));
+  return new Promise((resolve, reject) => {
+    connection.get(e, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  }).then(JSON.parse);
+}
+
+const init = () =>
+  set("jean", [{ name: "pain", amount: 15 }, { name: "farine", amount: 30 }]);
+
+get("jean").then(d => {
+  if (!d) init();
+}, init);
+
 const register = prom.register;
 
-function update() {
+async function update() {
   prom.register.clear();
+  let jean = await get("jean");
+  console.log(jean);
   for (let i in jean) {
     let cur = new prom.Gauge({
       name: jean[i].name,
@@ -26,10 +50,12 @@ function update() {
 
 update();
 
-server.get("/add", (req, res) => {
+server.get("/add", async (req, res) => {
+  let jean = await get("jean");
   for (let i in jean) {
     if (jean[i].name == req.query.name) {
       jean[i].amount = req.query.amount;
+      set("jean", jean);
       update();
       break;
     }
