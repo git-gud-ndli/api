@@ -60,10 +60,8 @@ for (const list of lists) {
 
 module.exports = {
   Query: {
-    todo: async (_, { id }, { dataSources }) => {
-      return todos.find(t => t.id === id);
-    },
-    todoList: graphQLBookshelf.resolverFactory(models.Todo),
+    todo: graphQLBookshelf.resolverFactory(models.TodoItem),
+    todoList: graphQLBookshelf.resolverFactory(models.TodoList),
     user: graphQLBookshelf.resolverFactory(models.User),
     me: async (_, {}, { dataSources, authenticated, user }) => {
       if (authenticated) return data.me;
@@ -92,10 +90,14 @@ module.exports = {
     },
   },
   User: {
-    lists: graphQLBookshelf.resolverFactory(models.Todo),
+    lists: graphQLBookshelf.resolverFactory(models.TodoList),
   },
   TodoList: {
     owner: graphQLBookshelf.resolverFactory(models.User),
+    items: graphQLBookshelf.resolverFactory(models.TodoItem),
+  },
+  TodoItem: {
+    list: graphQLBookshelf.resolverFactory(models.TodoList),
   },
   Mutation: {
     login: async (_, { email, password }, { dataSources }) => {
@@ -129,7 +131,7 @@ module.exports = {
       }
     },
     todoCheck: async (_, { uuid, value }, { dataSources }) => {
-      const todo = await models.Todo.where({ id: uuid }).fetch();
+      const todo = await models.TodoItem.where({ id: uuid }).fetch();
       todo.checked = value;
       todo.save();
       return true;
